@@ -12,6 +12,7 @@ import ProtectedRoutes from "./components/ProtectedRoutes/ProtectedRoutes";
 import UserContextProvider from "./Context/UserContext";
 import Exercise from "./components/Exercise/Exercise";
 import WorkoutContextProvider from "./Context/WorkoutContext";
+import { Toaster } from "react-hot-toast";
 let router = createBrowserRouter([
   {
     path: "",
@@ -63,6 +64,7 @@ function App() {
     <WorkoutContextProvider>
       <UserContextProvider>
         <RouterProvider router={router}></RouterProvider>
+        <Toaster />
       </UserContextProvider>
     </WorkoutContextProvider>
   );

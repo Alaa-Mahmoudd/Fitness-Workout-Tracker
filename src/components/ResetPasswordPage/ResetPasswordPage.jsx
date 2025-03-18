@@ -13,7 +13,7 @@ export default function ResetPasswordPage() {
     setIsLoad(true);
     axios
       .patch(
-        "https://fitness-workout-tracker-virid.vercel.app/user/reset_password",
+        "https://fitness-workout-tracker-chi.vercel.app/user/reset_password",
         formValues
       )
       .then((apiResponse) => {

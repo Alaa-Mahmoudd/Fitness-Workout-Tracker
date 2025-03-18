@@ -1,111 +1,33 @@
 import React, { useState, useEffect, useContext } from "react";
-import { FaPlusCircle, FaEdit, FaTrash } from "react-icons/fa";
-import axios from "axios";
-import { FaSpinner } from "react-icons/fa";
+import { FaPlusCircle, FaEdit, FaTrash, FaSpinner } from "react-icons/fa";
 import { Link } from "react-router-dom";
 import { WorkoutContext } from "../../Context/WorkoutContext";
 export default function Workout() {
   const {
     getWorkouts,
-    workouts,
     apiError,
     isLoading,
+    addWorkout,
+    deleteWorkout,
+    updateWorkout,
+    newWorkout,
+    setNewWorkout,
+    showForm,
+    setShowForm,
+    workouts,
     setWorkouts,
-    setIsLoading,
-    setApiError,
   } = useContext(WorkoutContext);
-  const [showForm, setShowForm] = useState(false);
-  const [newWorkout, setNewWorkout] = useState({
-    name: "",
-    date: "",
-    isCompleted: false,
-  });
 
-  // Fetch All Workouts
-  useEffect(() => {
-    getWorkouts();
-  }, [getWorkouts]);
-
-  // Add New Workout
-  async function addWorkout(newWorkout) {
-    const token = localStorage.getItem("userToken");
-    if (!token) return;
-    setIsLoading(true);
-    try {
-      const response = await axios.post(
-        "https://fitness-workout-tracker-virid.vercel.app/workout/",
-        newWorkout,
-        { headers: { Authorization: `Bearer ${token}` } }
-      );
-      // console.log("Added Workout Response:", response.data);
-      if (response?.data?.success) {
-        setWorkouts((prevWorkouts) => [...prevWorkouts, response.data.workout]);
-        setShowForm(false);
-      } else {
-        console.log("Failed to add workout:", response.data);
-        setApiError();
-      }
-    } catch (error) {
-      console.error("Error adding workout:", error);
-      setApiError();
-    } finally {
-      setIsLoading(false);
-    }
-  }
-
-  // Delete Workout
-  async function deleteWorkout(id) {
-    const token = localStorage.getItem("userToken");
-    if (!token) return;
-    setIsLoading(true);
-    try {
-      await axios.delete(
-        `https://fitness-workout-tracker-virid.vercel.app/workout/${id}`,
-        { headers: { Authorization: `Bearer ${token}` } }
-      );
-      setWorkouts((prevWorkouts) =>
-        prevWorkouts.filter((workout) => workout?._id !== id)
-      );
-    } catch (error) {
-      console.error("Error deleting workout:", error);
-      setApiError();
-    } finally {
-      setIsLoading(false);
-    }
-  }
-  // Update Workout Status
-  async function updateWorkout(id, newStatus) {
-    const token = localStorage.getItem("userToken");
-    if (!token) return;
-    setIsLoading(true);
-    try {
-      await axios.put(
-        `https://fitness-workout-tracker-virid.vercel.app/workout/${id}`,
-        { isCompleted: newStatus },
-        { headers: { Authorization: `Bearer ${token}` } }
-      );
-      setWorkouts((prevWorkouts) =>
-        prevWorkouts.map((workout) =>
-          workout?._id === id ? { ...workout, isCompleted: newStatus } : workout
-        )
-      );
-    } catch (error) {
-      console.error("Error updating workout:", error);
-      setApiError();
-    } finally {
-      setIsLoading(false);
-    }
-  }
   const today = new Date().toLocaleDateString("en-US", {
     weekday: "long",
     year: "numeric",
     month: "long",
     day: "numeric",
   });
-  // Handle Save Button Click
   function handleSave() {
     if (newWorkout.name && newWorkout.date) {
       addWorkout(newWorkout);
+      setNewWorkout({ name: "", date: "", isCompleted: false });
     }
   }
 
@@ -123,49 +45,47 @@ export default function Workout() {
         <div className="text-red-500 font-bold text-2xl flex justify-center items-center mt-7">
           <h1>{apiError}</h1>
         </div>
-      ) : Array.isArray(workouts) && workouts.length > 0 ? (
+      ) : Array.isArray(workouts) && workouts?.length > 0 ? (
         <div className="mt-10 w-full max-w-lg">
           <ul className="space-y-4">
             {workouts?.map((workout) => (
-              <div key={workout?._id}>
-                <div className="p-4 bg-white rounded-lg shadow-md flex justify-between items-center">
-                  <div>
-                    <span className="text-lg font-semibold">
-                      {workout?.name}
-                    </span>
-                  </div>
-                  <div>
-                    <span className="text-gray-600 ml-2">
-                      {workout?.isCompleted ? "✅ Completed" : "🕒 Upcoming"}
-                    </span>
-                  </div>
-                  <div className="mt-2">
-                    <Link
-                      to={`/exercise/${workout?._id}`}
-                      className="text-black-500 hover:text-red-500"
-                    >
-                      Exercise
-                    </Link>
-                  </div>
-
-                  <div className="flex space-x-3">
-                    <span
-                      className="text-blue-500 cursor-pointer hover:text-blue-700"
-                      onClick={() =>
-                        updateWorkout(workout?._id, !workout.isCompleted)
-                      }
-                    >
-                      <FaEdit />
-                    </span>
-                    <span
-                      className="text-red-500 cursor-pointer hover:text-red-700"
-                      onClick={() => deleteWorkout(workout?._id)}
-                    >
-                      <FaTrash />
-                    </span>
-                  </div>
+              <li
+                key={workout?._id}
+                className="p-4 bg-white rounded-lg shadow-md flex justify-between items-center"
+              >
+                <div>
+                  <span className="text-lg font-semibold">{workout?.name}</span>
                 </div>
-              </div>
+                <div>
+                  <span className="text-gray-600 ml-2">
+                    {workout?.isCompleted ? "✅ Completed" : "🕒 Upcoming"}
+                  </span>
+                </div>
+                <div className="mt-2">
+                  <Link
+                    to={`/exercise/${workout?._id}`}
+                    className="text-black-500 hover:text-red-500"
+                  >
+                    Exercise
+                  </Link>
+                </div>
+                <div className="flex space-x-3">
+                  <span
+                    className="text-blue-500 cursor-pointer hover:text-blue-700"
+                    onClick={() =>
+                      updateWorkout(workout?._id, !workout?.isCompleted)
+                    }
+                  >
+                    <FaEdit />
+                  </span>
+                  <span
+                    className="text-red-500 cursor-pointer hover:text-red-700"
+                    onClick={() => deleteWorkout(workout?._id)}
+                  >
+                    <FaTrash />
+                  </span>
+                </div>
+              </li>
             ))}
           </ul>
         </div>
@@ -174,6 +94,7 @@ export default function Workout() {
           <h1>No workouts found</h1>
         </div>
       )}
+
       <div className="text-center mt-6">
         <div className="flex justify-center">
           <span
@@ -185,12 +106,13 @@ export default function Workout() {
         </div>
         <h1 className="text-xl mt-4 font-semibold">Add Workout</h1>
       </div>
+
       {showForm && (
         <div className="mt-4 w-full max-w-lg p-4 bg-white rounded-lg shadow-md">
           <input
             type="text"
             placeholder="Workout Name"
-            value={newWorkout.name}
+            value={newWorkout?.name}
             onChange={(e) =>
               setNewWorkout({ ...newWorkout, name: e.target.value })
             }
@@ -198,7 +120,7 @@ export default function Workout() {
           />
           <input
             type="date"
-            value={newWorkout.date}
+            value={newWorkout?.date}
             onChange={(e) =>
               setNewWorkout({ ...newWorkout, date: e.target.value })
             }
@@ -207,22 +129,10 @@ export default function Workout() {
 
           <div className="mt-4">
             <input
-              type="radio"
-              id="completed"
-              name="status"
-              checked={newWorkout.isCompleted === true}
-              onChange={() =>
-                setNewWorkout({ ...newWorkout, isCompleted: true })
-              }
-            />
-            <label htmlFor="completed" className="mr-2 ml-2">
-              Completed
-            </label>
-            <input
-              type="radio"
+              type="checkbox"
               id="upcoming"
               name="status"
-              checked={newWorkout.isCompleted === false}
+              checked={newWorkout?.isCompleted === false}
               onChange={() =>
                 setNewWorkout({ ...newWorkout, isCompleted: false })
               }

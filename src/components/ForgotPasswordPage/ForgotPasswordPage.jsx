@@ -14,7 +14,7 @@ export default function ForgotPasswordPage() {
     setIsLoad(true);
     axios
       .patch(
-        "https://fitness-workout-tracker-virid.vercel.app/user/forget_code",
+        "https://fitness-workout-tracker-chi.vercel.app/user/forget_code",
         formValues
       )
       .then((apiResponse) => {
